@@ -27,7 +27,7 @@ export class UrlController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.urlService.findOne(+id);
+    return this.urlService.findOne(id);
   }
 
   @Patch(':id')
