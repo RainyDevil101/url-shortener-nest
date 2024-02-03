@@ -17,6 +17,7 @@ export class UrlController {
 
   @Post()
   create(@Body() createUrlDto: CreateUrlDto) {
+    console.log(createUrlDto);
     return this.urlService.create(createUrlDto);
   }
 
@@ -25,9 +26,14 @@ export class UrlController {
     return this.urlService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.urlService.findOne(id);
+  @Get(':url')
+  getOriginalUrl(@Param('url') url: string) {
+    return this.urlService.getOriginalUrl(url);
+  }
+
+  // @Get('click/:url')
+  // getOriginalUrl(@Param('url') url: string) {
+  //   return this.urlService.getOriginalUrl(url);
   }
 
   @Patch(':id')

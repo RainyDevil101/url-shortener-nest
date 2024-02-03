@@ -40,7 +40,7 @@ export class UrlService {
         lastUsedAt: currentDate,
       });
 
-      return product.shortUrl;
+      return { shortUrl: product.shortUrl };
     } catch (error) {
       console.log(error);
       this.handleExceptions(error);
@@ -62,8 +62,25 @@ export class UrlService {
     return originalUrl;
   }
 
+  async getOriginalUrl(url: string) {
+    // let originalUrl;
+    const originalUrl = await this.urlModel.findOne(
+      {
+        shortUrl: url,
+      },
+      {
+        originalUrl: 1,
+        _id: 0,
+      },
+    );
+
+    if (!originalUrl) false;
+
+    return originalUrl;
+  }
+
   async originalUrlExists(url: string) {
-    const originalUrl: Url = await this.urlModel.findOne(
+    const shortUrl: Url = await this.urlModel.findOne(
       {
         originalUrl: url,
       },
@@ -73,9 +90,9 @@ export class UrlService {
       },
     );
 
-    if (!originalUrl) return false;
+    if (!shortUrl) return false;
 
-    return originalUrl;
+    return shortUrl;
   }
 
   update(id: number, updateUrlDto: UpdateUrlDto) {
