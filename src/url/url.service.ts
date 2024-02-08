@@ -5,7 +5,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateUrlDto } from './dto/create-url.dto';
-import { UpdateUrlDto } from './dto/update-url.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Url } from './entities/url.entity';
 import { Model } from 'mongoose';
@@ -32,7 +31,7 @@ export class UrlService {
       const expiresAt = new Date(currentDate);
       expiresAt.setDate(expiresAt.getDate() + 30);
 
-      const product = await this.urlModel.create({
+      const url = await this.urlModel.create({
         originalUrl,
         shortUrl,
         createdAt: currentDate,
@@ -40,7 +39,7 @@ export class UrlService {
         lastUsedAt: currentDate,
       });
 
-      return { shortUrl: product.shortUrl };
+      return { shortUrl: url.shortUrl };
     } catch (error) {
       console.log(error);
       this.handleExceptions(error);
@@ -52,7 +51,6 @@ export class UrlService {
   }
 
   async findOne(url: string) {
-    // let originalUrl;
     const originalUrl = await this.urlModel.findOne({
       originalUrl: url,
     });
@@ -64,19 +62,21 @@ export class UrlService {
 
   async getOriginalUrl(url: string) {
     // let originalUrl;
-    const originalUrl = await this.urlModel.findOne(
-      {
-        shortUrl: url,
-      },
-      {
-        originalUrl: 1,
-        _id: 0,
-      },
-    );
+    const result = await this.urlModel
+      .findOneAndUpdate(
+        { shortUrl: url },
+        { $inc: { visitsCount: 1 } },
+        {
+          new: true,
+        },
+      )
+      .select({ originalUrl: 1, _id: 0 });
 
-    if (!originalUrl) false;
+    if (!result || !result.originalUrl)
+      throw new NotFoundException('La url no es válida');
 
-    return originalUrl;
+    console.log(result);
+    return result;
   }
 
   async originalUrlExists(url: string) {
@@ -90,20 +90,32 @@ export class UrlService {
       },
     );
 
-    if (!shortUrl) return false;
+    if (!shortUrl) false;
 
     return shortUrl;
   }
 
-  update(id: number, updateUrlDto: UpdateUrlDto) {
-    return `This action updates a #${id} url`;
+  async getClicks(url: string) {
+    const shortUrl: Url = await this.urlModel.findOne(
+      {
+        shortUrl: url,
+      },
+      {
+        visitsCount: 1,
+        _id: 0,
+      },
+    );
+
+    if (!shortUrl) throw new NotFoundException('La url no es válida');
+
+    return shortUrl;
   }
 
   remove(id: number) {
     return `This action removes a #${id} url`;
   }
 
-  private handleExceptions(error: any) {
+  private handleExceptions(error: any): never {
     if (error.code === 11000) {
       throw new BadRequestException(
         `Url exists in db ${JSON.stringify(error.keyValue)}`,

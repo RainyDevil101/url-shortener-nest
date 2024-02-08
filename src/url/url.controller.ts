@@ -1,15 +1,8 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { UrlService } from './url.service';
 import { CreateUrlDto } from './dto/create-url.dto';
-import { UpdateUrlDto } from './dto/update-url.dto';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import { ValidRoles } from 'src/auth/interfaces';
 
 @Controller('url')
 export class UrlController {
@@ -31,18 +24,15 @@ export class UrlController {
     return this.urlService.getOriginalUrl(url);
   }
 
-  // @Get('click/:url')
-  // getOriginalUrl(@Param('url') url: string) {
-  //   return this.urlService.getOriginalUrl(url);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUrlDto: UpdateUrlDto) {
-    return this.urlService.update(+id, updateUrlDto);
+  @Get('short/:url')
+  getClicks(@Param('url') url: string) {
+    return this.urlService.getClicks(url);
   }
 
   @Delete(':id')
+  @Auth(ValidRoles.user)
   remove(@Param('id') id: string) {
+    return;
     return this.urlService.remove(+id);
   }
 }
