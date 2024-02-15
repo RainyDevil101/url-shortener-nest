@@ -7,3 +7,4 @@ export class UrlHasher {
     return hash.digest('hex').slice(0, 6);
   }
 }
+
