@@ -65,6 +65,15 @@ export class AuthService {
     return token;
   }
 
+  async activateClouster() {
+    try {
+      await this.userModel.findOne({});
+      return 'Clouster activated';
+    } catch (error) {
+      throw new InternalServerErrorException('Error to activate clouster');
+    }
+  }
+
   private handleExceptions(error: any): never {
     if (error.code === 11000) {
       throw new BadRequestException(

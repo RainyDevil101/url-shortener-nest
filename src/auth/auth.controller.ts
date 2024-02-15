@@ -27,6 +27,11 @@ export class AuthController {
     return this.authService.chechAuthStatus(user);
   }
 
+  @Get('/activate-clouster')
+  activateClouster() {
+    return this.authService.activateClouster();
+  }
+
   @Get('private')
   @Auth(ValidRoles.admin)
   testingPrivateRoute(@GetUser() user: User) {
